@@ -6,14 +6,14 @@ import java.util.ArrayList;
 
 public class SimpleClient {
     public static void main(String[] args) throws IOException {
-        
-		// Hardcode in IP and Port here if required
-    	args = new String[] {"127.0.0.1", "30121"};
-    	ArrayList<String> packets = new ArrayList();
-    	
+
+        // Hardcode in IP and Port here if required
+        args = new String[] {"127.0.0.1", "30121"};
+        ArrayList<String> packets = new ArrayList();
+
         if (args.length != 2) {
             System.err.println(
-                "Usage: java EchoClient <host name> <port number>");
+                    "Usage: java EchoClient <host name> <port number>");
             System.exit(1);
         }
 
@@ -21,24 +21,37 @@ public class SimpleClient {
         int portNumber = Integer.parseInt(args[1]);
         try (Socket clientSocket = new Socket(hostName, portNumber); PrintWriter requestWriter = // stream to write text requests to server
                 new PrintWriter(clientSocket.getOutputStream(), true);  BufferedReader responseReader= // stream to read text response from server
-                new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); BufferedReader stdIn = // standard input stream to get user's requests
-                new BufferedReader(new InputStreamReader(System.in))) {
+                     new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); BufferedReader stdIn = // standard input stream to get user's requests
+                     new BufferedReader(new InputStreamReader(System.in))) {
 
 
 
 
 
 
-			//code starts here
+            //code starts here
+            System.out.println("Write your full sentence here that will be broken up into packets.");
+            String userInput = stdIn.readLine();
+            requestWriter.println(userInput);
+            int index = 0;
+            String packet;
+
+          while( ! (packet = responseReader.readLine()).equals("DONE")    ){
+                index = Integer.parseInt(responseReader.readLine());
+                while(packets.size() <= index)
+                    packets.add("");
+                packets.set(index, packet);
+            }
+
+            for (String singlePacket:packets) {
+                System.out.println(singlePacket);
+            }
 
 
-            String userInput;
-            String serverResponse = "";
-            boolean done = false;
-            System.out.println("Type \"start\" to start");
 
+            /*
             while (!((serverResponse = responseReader.readLine())).equals("DONE")) {
-                userInput = stdIn.readLine();
+            hell    userInput = stdIn.readLine();
 
                 requestWriter.println(userInput); // send packet to server
 
@@ -60,14 +73,14 @@ public class SimpleClient {
 
 
 
-            }
+            }*/
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to " +
-                hostName);
+                    hostName);
             System.exit(1);
-        } 
+        }
     }
 }

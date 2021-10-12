@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 public class SimpleServer {
 
@@ -30,15 +28,39 @@ public class SimpleServer {
 
 
             //CODE STARTS HERE
-            ArrayList<String> packets = new ArrayList<String>();
-            ArrayList<Integer> metadata = new ArrayList<Integer>();
+
             String usersInput = "";
             String fullMessage = "";
-            boolean swap = false; //starts on false, switches to true when the user is done
 
 
-            responseWriter1.println("Enter your packets pressing the enter key between them");
-            while (!((usersInput = requestReader1.readLine())).equals("DONE")){
+            String clientMessage = requestReader1.readLine(); //reads the packets the client sends the server
+
+            List<String> packets = new ArrayList<String>(Arrays.asList(clientMessage.split(" "))); //parses those into individual packets
+            ArrayList<Integer> metadata = new ArrayList<Integer>(); //create a metadata ArrayList of the same size to keep track of placement
+            for (int i = 0; i < packets.size(); i++) //fill the metadata with the order of the packets
+                metadata.add(i);
+
+
+            int seed = rnd.nextInt(); //create a seed to shuffle both the packets and the metadata the same shuffle
+            Collections.shuffle(packets, new Random(seed));
+            Collections.shuffle(metadata, new Random(seed));
+
+            metadata.add(packets.size()); //add 0 and done to end of packets signifying the last packet
+            packets.add("DONE");
+
+
+            for (int i = 0; i < packets.size(); i++) {
+                responseWriter1.println(packets.get(i));
+                responseWriter1.println(metadata.get(i));
+            }
+
+
+
+
+
+
+            /*
+            while (requestReader1.readLine() != null){
                 if ((!usersInput.equals("done") && !swap)) { //first we receive all the data that we need to recieve from the client
                     System.out.println("\"" + usersInput + "\" received");
                     fullMessage += (usersInput + " ");
@@ -62,7 +84,7 @@ public class SimpleServer {
                         responseWriter1.println(packets.get(i));
                     }
                 }
-            }
+            }*/
         } catch (IOException e) {
             System.out.println(
                     "Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
