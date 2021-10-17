@@ -21,70 +21,31 @@ public class SimpleServer {
         int portNumber = Integer.parseInt(args[0]);
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]));
              Socket clientSocket1 = serverSocket.accept();  PrintWriter responseWriter1 = new PrintWriter(clientSocket1.getOutputStream(), true);  BufferedReader requestReader1 = new BufferedReader(new InputStreamReader(clientSocket1.getInputStream())) ) {
-
-
-
-
-
-
-            //CODE STARTS HERE
-
-            String usersInput = "";
-            String fullMessage = "";
-
-
             String clientMessage = requestReader1.readLine(); //reads the packets the client sends the server
 
             List<String> packets = new ArrayList<String>(Arrays.asList(clientMessage.split(" "))); //parses those into individual packets
             ArrayList<Integer> metadata = new ArrayList<Integer>(); //create a metadata ArrayList of the same size to keep track of placement
             for (int i = 0; i < packets.size(); i++) //fill the metadata with the order of the packets
                 metadata.add(i);
-
-
             int seed = rnd.nextInt(); //create a seed to shuffle both the packets and the metadata the same shuffle
             Collections.shuffle(packets, new Random(seed));
             Collections.shuffle(metadata, new Random(seed));
-
-            metadata.add(packets.size()); //add 0 and done to end of packets signifying the last packet
+            metadata.add(packets.size()); //add size of packet and done to end of packets signifying the last packet
             packets.add("DONE");
-
-
-            for (int i = 0; i < packets.size(); i++) {
-                responseWriter1.println(packets.get(i));
-                responseWriter1.println(metadata.get(i));
-            }
-
-
-
-
-
-
-            /*
-            while (requestReader1.readLine() != null){
-                if ((!usersInput.equals("done") && !swap)) { //first we receive all the data that we need to recieve from the client
-                    System.out.println("\"" + usersInput + "\" received");
-                    fullMessage += (usersInput + " ");
-                    responseWriter1.println(usersInput);
-                    packets.add(usersInput);
-                }else if(!swap) { //once the user indicates that all the data has been sent
-
-                    for (int i = 0; i < packets.size(); i++)
-                        metadata.add(i + 1);
-                    int seed = rnd.nextInt();
-                    Collections.shuffle(packets, new Random(seed));
-                    Collections.shuffle(metadata, new Random(seed));
-                    packets.add("DONE");
-                    metadata.add(0);
-                    swap = true;
-                    responseWriter1.println("done");
-                }
-                else if (swap){ //THIS IS WHERE WE LIVE
-                    for (int i = 0; i < packets.size(); i++) {
-                        responseWriter1.println(metadata.get(i));
+            while (true) {
+                if(requestReader1.readLine().equals("DONE"))
+                    System.exit(0);
+                for (int i = 0; i < packets.size(); i++) {
+                    int odds = rnd.nextInt(100);
+                    if (odds < 79) {
                         responseWriter1.println(packets.get(i));
+                        responseWriter1.println(metadata.get(i));
+                    } else {
+                        responseWriter1.println("ERROR");
+                        responseWriter1.println(0);
                     }
                 }
-            }*/
+            }
         } catch (IOException e) {
             System.out.println(
                     "Exception caught when trying to listen on port " + portNumber + " or listening for a connection");

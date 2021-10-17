@@ -23,57 +23,26 @@ public class SimpleClient {
                 new PrintWriter(clientSocket.getOutputStream(), true);  BufferedReader responseReader= // stream to read text response from server
                      new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); BufferedReader stdIn = // standard input stream to get user's requests
                      new BufferedReader(new InputStreamReader(System.in))) {
-
-
-
-
-
-
-            //code starts here
             System.out.println("Write your full sentence here that will be broken up into packets.");
             String userInput = stdIn.readLine();
             requestWriter.println(userInput);
             int index = 0;
             String packet;
-
-          while( ! (packet = responseReader.readLine()).equals("DONE")    ){
-                index = Integer.parseInt(responseReader.readLine());
+            boolean firstRun = true;
+          while( ( areEmptySpots(packets) && !firstRun) || firstRun   ){
+              requestWriter.println("NOT DONE");
+              packet = responseReader.readLine();
+              index = Integer.parseInt(responseReader.readLine());
                 while(packets.size() <= index)
                     packets.add("");
-                packets.set(index, packet);
+                if(!packet.equals("ERROR"))
+                    packets.set(index, packet);
+                if(packet.equals("DONE"))
+                    firstRun = false;
             }
-
-            for (String singlePacket:packets) {
+          requestWriter.println("DONE");
+            for (String singlePacket:packets)
                 System.out.println(singlePacket);
-            }
-
-
-
-            /*
-            while (!((serverResponse = responseReader.readLine())).equals("DONE")) {
-            hell    userInput = stdIn.readLine();
-
-                requestWriter.println(userInput); // send packet to server
-
-
-                System.out.println("SERVER RESPONDS: \"" + serverResponse + "\"");
-                if(serverResponse.equals("done")){
-                    while(!done){
-                        requestWriter.println("Give me the next packet.");
-                        int index = Integer.parseInt(responseReader.readLine());
-                        String packet = responseReader.readLine();
-                        System.out.println(index + " " + packet);
-                        packets.set(index, packet);
-                    }
-                }
-
-
-
-
-
-
-
-            }*/
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);
             System.exit(1);
@@ -83,4 +52,15 @@ public class SimpleClient {
             System.exit(1);
         }
     }
+
+    public static boolean areEmptySpots(ArrayList<String> spots){
+        for (String spot:spots)
+            if ( spot.equals("") )
+                return true;
+        return false;
+    }
+
+
+
 }
+
